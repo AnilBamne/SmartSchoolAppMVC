@@ -1,5 +1,6 @@
 ﻿using BusinessLayer.Interface;
 using CommonLayer.RequestModel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -33,8 +34,9 @@ namespace SmartSchoolAppMVC.Controllers
             }
         }
         [HttpGet]
-        public IActionResult StudentDetails(int Id)
+        public IActionResult StudentDetails(int? Id)
         {
+            Id = HttpContext.Session.GetInt32("StudentId");
             if(Id == null)
             {
                 return NotFound();
@@ -47,14 +49,59 @@ namespace SmartSchoolAppMVC.Controllers
             return View(studentModel);
         }
 
-        //[HttpGet]
-        //public IActionResult Update(int? studentId)
-        //{
-        //    if(studentId == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    StudentModel model = studentBL.UpdateStudentInfo(studentId);
-        //}
+        [HttpGet]
+        public IActionResult Edit(int? Id)
+        {
+            if (Id == null)
+            {
+                return NotFound();
+            }
+            StudentModel model = studentBL.StudentDetails(Id);
+            if(model == null)
+            {
+                return null;
+            }
+            return View(model);
+        }
+        [HttpPost]
+        public IActionResult Edit(int Id, [Bind]StudentModel model)
+        {
+            if (Id != model.Id)
+            {
+                return NotFound();
+            }
+            if (ModelState.IsValid)
+            {
+                studentBL.UpdateStudentInfo( model);
+                return View(model);
+            }
+            return View(model);
+        }
+
+
+        [HttpGet]
+        public IActionResult StudentLogin()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult StudentLogin(LoginModel model)
+        {
+            try
+            {
+                if(model.Email == null || model.RegistrationNumber == null)
+                {
+                    return NotFound();
+                }
+
+                var result=studentBL.StudentLogin(model);
+                HttpContext.Session.SetInt32("StudentId", result);
+                return RedirectToAction("StudentDetails");
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

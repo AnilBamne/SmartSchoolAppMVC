@@ -1,4 +1,5 @@
 ﻿using CommonLayer.RequestModel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using RepositoryLayer.Interface;
 using System;
@@ -58,8 +59,12 @@ namespace RepositoryLayer.Service
 
                 throw ex;
             }
+            finally
+            {
+                connection.Close();
+            }
         }
-        public StudentModel StudentDetails(int Id)
+        public StudentModel StudentDetails(int? Id)
         {
             StudentModel studentModel = new StudentModel();
             try
@@ -101,8 +106,12 @@ namespace RepositoryLayer.Service
             {
                 throw ex;
             }
+            finally
+            {
+                connection.Close();
+            }
         }
-        public StudentModel UpdateStudentInfo(StudentModel model,int studentId)
+        public StudentModel UpdateStudentInfo(StudentModel model)
         {
             try
             {
@@ -111,7 +120,7 @@ namespace RepositoryLayer.Service
                     SqlCommand cmd = new SqlCommand("spUpdateStudentInfo", connection);
                     cmd.CommandType=CommandType.StoredProcedure;
 
-                    cmd.Parameters.AddWithValue("Id", studentId);
+                    cmd.Parameters.AddWithValue("Id", model.Id);
                     cmd.Parameters.AddWithValue("FirstName", model.FirstName);
                     cmd.Parameters.AddWithValue("LastName", model.LastName);
                     cmd.Parameters.AddWithValue("Class", model.Class);
@@ -152,6 +161,46 @@ namespace RepositoryLayer.Service
             catch(Exception ex)
             {
                 throw ex;
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
+
+        public int StudentLogin(LoginModel model)
+        {
+            try
+            {
+                using (connection)
+                {
+                    SqlCommand cmd = new SqlCommand("spStudentLogin",connection);
+                    cmd.CommandType=CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@email",model.Email);
+                    cmd.Parameters.AddWithValue("@registrationNumber", model.RegistrationNumber);
+
+                    connection.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            //int studentId=reader.GetInt32(0);
+                            int studentId = Convert.ToInt32(reader["Id"]);
+                            return studentId;
+                        }
+                    }
+                    return 0;
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                connection.Close();
             }
         }
     }

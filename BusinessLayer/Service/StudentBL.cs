@@ -19,13 +19,17 @@ namespace BusinessLayer.Service
         {
             return studentRL.RegisterStudent(model);
         }
-        public StudentModel StudentDetails(int Id)
+        public StudentModel StudentDetails(int? Id)
         {
             return studentRL.StudentDetails(Id);
         }
-        public StudentModel UpdateStudentInfo(StudentModel model, int studentId)
+        public StudentModel UpdateStudentInfo(StudentModel model)
         {
-           return studentRL.UpdateStudentInfo(model, studentId);
+           return studentRL.UpdateStudentInfo(model);
+        }
+        public int StudentLogin(LoginModel model)
+        {
+            return studentRL.StudentLogin(model);
         }
     }
 }

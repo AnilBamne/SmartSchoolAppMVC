@@ -31,6 +31,12 @@ namespace SmartSchoolAppMVC
             services.AddMvc();
             services.AddTransient<IStudentBL, StudentBL>();
             services.AddTransient<IStudentRL, StudentRL>();
+
+            //Adding session
+            services.AddSession(option =>
+            {
+                option.IdleTimeout = TimeSpan.FromMinutes(120);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,6 +55,8 @@ namespace SmartSchoolAppMVC
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            app.UseSession();
+
             app.UseRouting();
 
             app.UseAuthorization();
@@ -57,7 +65,7 @@ namespace SmartSchoolAppMVC
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Student}/{action=Register}/{id?}");
+                    pattern: "{controller=Student}/{action=StudentLogin}/{id?}");
             });
         }
     }
