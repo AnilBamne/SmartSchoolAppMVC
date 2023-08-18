@@ -3,6 +3,7 @@ using CommonLayer.RequestModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 
 namespace SmartSchoolAppMVC.Controllers
 {
@@ -12,6 +13,10 @@ namespace SmartSchoolAppMVC.Controllers
         public StudentController(IStudentBL studentBL)
         {
             this.studentBL = studentBL;
+        }
+        public IActionResult Index()
+        {
+            return View();
         }
 
         [HttpGet]
@@ -36,7 +41,8 @@ namespace SmartSchoolAppMVC.Controllers
         [HttpGet]
         public IActionResult StudentDetails(int? Id)
         {
-            Id = HttpContext.Session.GetInt32("StudentId");
+            Id = HttpContext.Session.GetInt32("studentId");
+            
             if(Id == null)
             {
                 return NotFound();
@@ -46,6 +52,12 @@ namespace SmartSchoolAppMVC.Controllers
             {
                 return null;
             }
+
+            string email = HttpContext.Session.GetString("email");
+            ViewBag.UserEmail = email;
+
+            //int Id = Convert.ToInt32(User.Claims.FirstOrDefault(a => a.Type == "UserId").Value);
+            //HttpContext.Session.SetInt32("StudentId", Id);
             return View(studentModel);
         }
 
@@ -88,19 +100,34 @@ namespace SmartSchoolAppMVC.Controllers
         public IActionResult StudentLogin(LoginModel model)
         {
             try
-            {
+            {  
                 if(model.Email == null || model.RegistrationNumber == null)
                 {
                     return NotFound();
                 }
+                var result=studentBL.StudentLogin(model,HttpContext);
+                HttpContext.Session.SetString("token", result);
 
-                var result=studentBL.StudentLogin(model);
-                HttpContext.Session.SetInt32("StudentId", result);
+                
+
                 return RedirectToAction("StudentDetails");
             }
             catch(Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public IActionResult GetAllStudents()
+        {
+            try
+            {
+                var result=studentBL.GetAllStudents();
+                return View(result);
+            }
+            catch(Exception e)
+            {
+                throw e;
             }
         }
     }

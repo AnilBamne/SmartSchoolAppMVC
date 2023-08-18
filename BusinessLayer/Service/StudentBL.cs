@@ -1,5 +1,6 @@
 ﻿using BusinessLayer.Interface;
 using CommonLayer.RequestModel;
+using Microsoft.AspNetCore.Http;
 using RepositoryLayer.Interface;
 using System;
 using System.Collections.Generic;
@@ -27,9 +28,13 @@ namespace BusinessLayer.Service
         {
            return studentRL.UpdateStudentInfo(model);
         }
-        public int StudentLogin(LoginModel model)
+        public string StudentLogin(LoginModel model, HttpContext httpContext)
         {
-            return studentRL.StudentLogin(model);
+            return studentRL.StudentLogin(model, httpContext);
+        }
+        public IEnumerable<StudentModel> GetAllStudents()
+        {
+            return studentRL.GetAllStudents();
         }
     }
 }
