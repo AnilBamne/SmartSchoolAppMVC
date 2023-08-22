@@ -9,6 +9,7 @@ namespace SmartSchoolAppMVC.Controllers
 {
     public class StudentController : Controller
     {
+        
         private readonly IStudentBL studentBL;
         public StudentController(IStudentBL studentBL)
         {
@@ -94,6 +95,7 @@ namespace SmartSchoolAppMVC.Controllers
         [HttpGet]
         public IActionResult StudentLogin()
         {
+            TempData["IsLoggedIn"] = false;
             return View();
         }
         [HttpPost]
@@ -108,8 +110,8 @@ namespace SmartSchoolAppMVC.Controllers
                 var result=studentBL.StudentLogin(model,HttpContext);
                 HttpContext.Session.SetString("token", result);
 
-                
 
+                TempData["IsLoggedIn"] = true;
                 return RedirectToAction("StudentDetails");
             }
             catch(Exception ex)
@@ -128,6 +130,25 @@ namespace SmartSchoolAppMVC.Controllers
             catch(Exception e)
             {
                 throw e;
+            }
+        }
+
+        [HttpGet]
+        public IActionResult UploadImage()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult UploadImage(ImageUploadModel model)
+        {
+            try
+            {
+                var result = studentBL.UploadImage(model);
+                return RedirectToAction("StudentLogin");
+            }
+            catch(Exception ex)
+            {
+                throw ex;
             }
         }
     }

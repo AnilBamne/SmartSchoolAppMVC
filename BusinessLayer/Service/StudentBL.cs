@@ -36,5 +36,9 @@ namespace BusinessLayer.Service
         {
             return studentRL.GetAllStudents();
         }
+        public string UploadImage(ImageUploadModel model)
+        {
+            return studentRL.UploadImage(model);
+        }
     }
 }

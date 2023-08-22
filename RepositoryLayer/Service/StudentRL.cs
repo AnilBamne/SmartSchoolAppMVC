@@ -1,4 +1,6 @@
-﻿using CommonLayer;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using CommonLayer;
 using CommonLayer.RequestModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -25,7 +27,7 @@ namespace RepositoryLayer.Service
         {
             this.configuration = configuration;
             ConnectionString = this.configuration.GetConnectionString("DBConnect");
-            connection.ConnectionString= ConnectionString;
+            connection.ConnectionString = ConnectionString;
         }
 
         public string RegisterStudent(StudentModel model)
@@ -124,16 +126,16 @@ namespace RepositoryLayer.Service
                     SqlCommand cmd = new SqlCommand("spUpdateStudentInfo", connection);
                     cmd.CommandType=CommandType.StoredProcedure;
 
-                    cmd.Parameters.AddWithValue("Id", model.Id);
-                    cmd.Parameters.AddWithValue("FirstName", model.FirstName);
-                    cmd.Parameters.AddWithValue("LastName", model.LastName);
-                    cmd.Parameters.AddWithValue("Class", model.Class);
-                    cmd.Parameters.AddWithValue("DOB", model.DOB);
-                    cmd.Parameters.AddWithValue("RegistrationNumber", model.RegistrationNumber);
-                    cmd.Parameters.AddWithValue("Address", model.Address);
-                    cmd.Parameters.AddWithValue("PhoneNumber", model.PhoneNumber);
-                    cmd.Parameters.AddWithValue("Email", model.Email);
-                    cmd.Parameters.AddWithValue("Gender", model.Gender);
+                    cmd.Parameters.AddWithValue("@Id", model.Id);
+                    cmd.Parameters.AddWithValue("@FirstName", model.FirstName);
+                    cmd.Parameters.AddWithValue("@LastName", model.LastName);
+                    cmd.Parameters.AddWithValue("@Class", model.Class);
+                    cmd.Parameters.AddWithValue("@DOB", model.DOB);
+                    cmd.Parameters.AddWithValue("@RegistrationNumber", model.RegistrationNumber);
+                    cmd.Parameters.AddWithValue("@Address", model.Address);
+                    cmd.Parameters.AddWithValue("@PhoneNumber", model.PhoneNumber);
+                    cmd.Parameters.AddWithValue("@Email", model.Email);
+                    cmd.Parameters.AddWithValue("@Gender", model.Gender);
 
                     connection.Open();
                     SqlDataReader reader = cmd.ExecuteReader();
@@ -284,6 +286,52 @@ namespace RepositoryLayer.Service
         {
             StudentTicketModel model= new StudentTicketModel();
             return model;
+        }
+
+        //Profile image upload
+        public string UploadImage(ImageUploadModel model)
+        {
+            try
+            {
+                using (connection)
+                {
+                    Account account = new Account(
+                        configuration["Cloudinary:Name"],
+                        configuration["Cloudinary:APIKey"],
+                        configuration["Cloudinary:APISecret"]
+                        );
+                    Cloudinary cloudinary = new Cloudinary(account);
+
+                    var uploadimage = new ImageUploadParams()
+                    {
+                        File = new FileDescription(model.File.FileName, model.File.OpenReadStream())
+                    };
+                    var imageUploadResult = cloudinary.Upload(uploadimage);
+                    string imagePath = imageUploadResult.Url.ToString();
+
+                    string query = "Insert Into StudentImageTable(StudentId,ProfileImage)Values(@studId,@filePath)";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@studId", model.StudenId);
+                    command.Parameters.AddWithValue("@filePath", imagePath);
+                    connection.Open();
+                    int count = command.ExecuteNonQuery();
+                    if (count >= 1)
+                    {
+                        return "Image Uploaded Successfully";
+                    }
+                    return "Upload Failed";
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
     }
 }

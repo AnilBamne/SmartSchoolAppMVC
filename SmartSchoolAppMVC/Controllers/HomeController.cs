@@ -20,6 +20,7 @@ namespace SmartSchoolAppMVC.Controllers
 
         public IActionResult Index()
         {
+            TempData["IsLoggedIn"] = false;
             return View();
         }
 

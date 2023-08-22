@@ -1,7 +1,37 @@
 ﻿
+.text-center{
+    margin:0px;
+    padding:0px;
+}
 
-img-content{
-    width:100vw;
-    height:80vh;
-    opacity:0.9;
+.img-content {
+    width: 100vw;
+    height: 100vh;
+    opacity: 0.8;
+    position:absolute;
+    z-index:-1;
+    left:0px;
+    top:0px;
+}
+header {
+    background-color: darkgrey
+}
+h1 {
+    font-family: 'Roboto', sans-serif;
+}
+
+
+.row{
+    display:flex;
+    justify-content:center;
+}
+h4 {
+    display: flex;
+    justify-content: center;
+    margin-top:20px;
+    margin-bottom:40px
+}
+.btns {
+    display: flex;
+    justify-content:space-between
 }

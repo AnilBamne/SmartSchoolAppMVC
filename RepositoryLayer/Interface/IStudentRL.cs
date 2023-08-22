@@ -13,5 +13,6 @@ namespace RepositoryLayer.Interface
         public StudentModel UpdateStudentInfo(StudentModel model);
         public string StudentLogin(LoginModel model, HttpContext httpContext);
         public IEnumerable<StudentModel> GetAllStudents();
+        public string UploadImage(ImageUploadModel model);
     }
 }
